@@ -1,0 +1,55 @@
+-
+  name: demoSimpleCommandsRunOnLocalHost
+  hosts: localhost
+  gather_facts: false
+  vars:
+    outPutCmd_psef: ""
+    outputCmd_lsal: ""
+    outPutCmd_lsaltmp: ""
+    outPutCmd_dfk: ""
+
+  tasks:
+    -
+      name: run_psef
+      shell: "ps -ef"
+      register: outPutCmd_psef
+
+    -
+      name: print_psef
+      debug:
+        msg: "{{outPutCmd_psef}}"
+
+    -
+      name: run_lsal
+      shell: "ls -al"
+      register: outputCmd_lsal
+
+    -
+      name: print_lsal
+      debug:
+        msg: "{{outputCmd_lsal}}"
+
+    -
+      name: run_lsaltmp
+      shell: "ls -al /tmp"
+      register: outPutCmd_lsaltmp
+
+    -
+      name: print_lsaltmp
+      debug:
+        msg: "{{outPutCmd_lsaltmp}}"
+
+    -
+      name: run_dfk
+      shell: "df -k"
+      register: outPutCmd_dfk
+
+    -
+      name: print_dfk
+      debug:
+        msg: "{{outPutCmd_dfk}}"
+
+    
+
+
+  
