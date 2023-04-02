@@ -1,0 +1,79 @@
+-
+  name: collectOsInformation
+  hosts: all
+  gather_facts: false
+  vars:
+    dfOutPut: ""
+    dynamicList: []
+    dynamicListOfStruct: []
+  
+  tasks:
+    -
+      name: getFilesystemInfo
+      shell: "df -k"
+      register: dfOutPut
+
+    -
+      name: displayFileSystemInfo
+      debug:
+        msg: "{{ dfOutPut }}"
+
+    -
+      name: createDynamicList
+      set_fact:
+        dynamicList: "{{dynamicList}} + ['{{item}}']"
+      loop: "{{dfOutPut.stdout_lines}}"
+
+    -
+      name: displayDynamicList
+      debug:
+        msg: "{{dynamicList}}"
+
+    -
+      name: extractFields
+      set_fact:
+        fields: "{{fields|default([]) + dynamicList[0].split()}}"
+
+    -
+      name: displayExtractedFields
+      debug:
+        msg: "{{fields}}"
+    -
+      name: initializeDynamicStructure
+      set_fact:
+        dynamicStruct: "{{dynamicStruct|default({fields[5]:'', fields[4]:'', fields[3]:'', fields[2]:'', fields[1]:'', fields[0]:''})}}"
+
+    -
+      name: displayDynamicStructure
+      debug:
+        msg: "{{dynamicStruct}}"
+
+    -
+      name: getLengthOfDynamicList
+      set_fact:
+        lenDynamicList: "{{dynamicList|length()}}"
+
+    -
+      name: debugLen
+      debug:
+        msg: "number of records in DL: {{lenDynamicList}}"
+
+    -
+      name: createFinalDataStructure
+      set_fact:
+        
+        dynamicListOfStruct: "{{ dynamicListOfStruct + [ dynamicStruct|combine( { fields[0]:splitRecord[0]|from_yaml, fields[1]:splitRecord[1]|from_yaml, fields[2]:splitRecord[2]|from_yaml, fields[3]:splitRecord[3]|from_yaml, fields[4]:splitRecord[4]|from_yaml, fields[5]:splitRecord[5]|from_yaml } ) ] }}"
+
+      loop: "{{range(1,lenDynamicList|int)|list}}"
+      vars:
+        splitRecord: "{{ [] + dynamicList[item].split() }}"
+
+    -
+      name: displayFinalDataStructure
+      debug:
+        msg: "{{dynamicListOfStruct}}"
+
+
+
+ 
+
