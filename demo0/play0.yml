@@ -1,5 +1,5 @@
 -
-  name: demoSimpleCommandsRunOnLocalHost
+  name: Demo Simple Commands Running on Local Host
   hosts: localhost
   gather_facts: false
   vars:
