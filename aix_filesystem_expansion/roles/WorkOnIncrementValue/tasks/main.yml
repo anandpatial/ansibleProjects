@@ -1,0 +1,73 @@
+              #=============================================Gather and Validate Increament Value Details===============================#
+
+
+                - name: convert increment in string format
+                  set_fact:
+                          inc_str: "{{ '' ~ size_increment  }}"
+
+                - name: find increament unit - get suffix
+                  set_fact:
+
+                          inc_suffix: "{{ inc_str| regex_search('(?<=[0-9])[^0-9].*') }}"
+
+                - name: find the number - get prefix
+                  set_fact:
+                          inc_prefix: "{{ inc_str| regex_search('^[0-9]+') }}"
+
+                - name: print increament suffix
+                  debug:
+                    msg: "{{ inc_suffix }}"
+
+                - name: print prefix_number
+                  debug:
+                    msg: "{{ inc_prefix }}"
+
+                
+                - name: end play if prefix value is null
+                  debug:
+                    msg: "The size increment value is not valid. Play Ends"
+                  when: inc_prefix == ''
+
+                  #- name: end play  - Never use - produce unexpected results from Ansible controller regarding execution order
+                  #meta: end_play
+                  #when: inc_prefix == ''
+
+                - name: validate increament value when suffix is in Gigabytes
+                  set_fact:
+                          inc_valid: "t"
+                          suffix: "G"
+                          increase_size_bytes: "{{ inc_prefix|int * 1024 * 1024 * 1024  }}"
+                  when: inc_suffix == "G" or inc_suffix == "GB" or inc_suffix == "g" or inc_suffix == "gb" and inc_prefix|int > 0
+
+                - name: validate increament value when suffix is in Megabytes
+                  set_fact:
+                          inc_valid: "t"
+                          suffix: "M"
+                          increase_size_bytes: "{{ inc_prefix|int * 1024 * 1024  }}"
+                  when: inc_suffix == "M" or inc_suffix == "MB" or inc_suffix == "m" or inc_suffix == "mb" and inc_prefix|int > 0
+
+
+                - name: validate increament value when suffix is empty
+                  set_fact:
+                           inc_valid: "t"
+                           suffix_empty: "t"
+                           suffix: ''
+                           increase_size_bytes: "{{ inc_prefix|int * 512 }}"
+                  when: inc_suffix == "" and inc_prefix|int > 0
+
+
+                  #- name: print validity
+                  #debug:
+                  #       msg: "{{ inc_valid }}"
+
+                - name: print debug message if the increament value is not valid
+                  debug:
+                          msg: "The increament value must have suffix G|GB|g|gb|M|MB|m|mb value >=1 or an empty suffix and value >=512 bytes. Exiting "
+                  
+                  when: inc_valid == "f"
+
+                  #- name: end the play when increment value is not valid  - Never use - produce unexpected results from Ansible controller regarding execution order
+                  #meta: end_play
+                  #when: inc_valid == "f"
+
+

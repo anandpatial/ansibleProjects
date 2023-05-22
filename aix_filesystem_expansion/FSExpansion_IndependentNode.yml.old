@@ -1,0 +1,59 @@
+# This is the control module serving the Filesystem Expansion of an Independent node
+# The User need to feed the Filesystem Mount Point and the Increment Value
+# The Increment Value can be in the unit of Gigabytes(G,GB,g,gb) or Megabytes(M,MB,m,mb)
+# Please Refer to Readme.txt for detailed usage document
+
+-
+        name: StartOnFSExpansion
+        vars_files:
+          - group_vars/target_servers.yml
+
+        hosts: all
+        gather_facts: false
+        become: yes
+        become_exe: pbrun
+        become_flags: ''
+        ignore_errors: no
+        #serial: 1
+
+        tasks:
+        - name: Call NodesParametersParser
+          include_role:
+            name: NodesParametersParser
+                
+        - name: Call ValidateFS_DetectVG
+          include_role:
+            name: ValidateFS_DetectVG
+          when: host_found == "t"
+
+        - name: Call GatherClusterData
+          include_role:
+            name: GatherClusterData
+          when: fs_result != '' and lslv_exception != "t" and  vg_valid != "f"
+                
+        - name: Call DecisionPath
+          include_role:
+            name: DecisionPath
+          when: host_found == "t" and fs_result != '' and  lslv_exception != "t" and  vg_valid != "f"
+
+        - name: Call WorkOnIncrementValue 
+          include_role:
+            name: WorkOnIncrementValue
+          when: fs_result != '' and lslv_exception != "t" and vg_valid != "f" and not_active_node_for_fs == "f"
+
+        - name: Call FindAvlbSpace
+          include_role:
+            name: FindAvlbSpace
+          when : fs_result != '' and lslv_exception != "t" and vg_valid != "f" and not_active_node_for_fs == "f"  and inc_prefix != "" and inc_valid == "t"
+          
+        - name: Call DecideGoNoGo
+          include_role:
+            name: DecideGoNoGo
+          when: fs_result != '' and lslv_exception != "t" and vg_valid != "f" and not_active_node_for_fs == "f" and inc_prefix != "" and inc_valid == "t" and free_pps|int != 0
+                
+        - name: Call ExecFSIncrease
+          include_role:
+            name: ExecFSIncrease
+          when: fs_result != '' and lslv_exception != "t" and vg_valid != "f" and not_active_node_for_fs == "f"  and inc_prefix != "" and inc_valid == "t" and free_pps|int != 0 and increase_size == "t"
+                
+                

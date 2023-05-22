@@ -1,0 +1,38 @@
+- block:  
+  - name: Check given VG
+    shell: "lsvg {{fs_vg}}"
+    register: buffer
+  
+  - name: print buffer
+    debug:
+      msg: "{{buffer}}"
+
+  - name: Set VG Validity
+    set_fact:
+      vg_valid: "t"
+    when: buffer.stdout != ""
+  
+  - name: fetch Total PVs
+    set_fact:
+      total_pvs: "{{buffer.stdout_lines[6]| regex_search('\\d+')}}"
+    when: vg_valid == "t"
+
+  - name: debug total_pvs
+    debug:
+      msg: "{{total_pvs}}"
+
+  - name: check and set mirror strictness feasibility
+    set_fact:
+      mirror_strictness_feasible: "t"
+    when: total_pvs|int >= lvcr_copies|int 
+
+  - name: end play when mirror strictness not feasible
+    debug:
+      msg: "mirror strictness is not feasible because required LV copies are more than number of PVs. The play will End"
+    when: mirror_strictness_feasible == "f"
+
+  rescue:
+    - name: print message
+      debug:
+        msg: "The VG does not exist. Please provide a Valid VG name. Play Ends"
+  

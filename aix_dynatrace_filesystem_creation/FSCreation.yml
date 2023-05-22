@@ -1,0 +1,85 @@
+-
+        name: StartOnFSExpansion
+        vars_files:
+          - group_vars/target_servers.yml
+
+        hosts: all
+        gather_facts: false
+        become: yes
+        become_exe: pbrun
+        become_flags: ''
+        ignore_errors: no
+        
+
+        tasks:
+        - name: Call NodesParametersParser
+          include_role:
+            name: NodesParametersParser
+
+        - name: Call UESDynatraceCheck
+          include_role:
+            name: UESDynatraceCheck
+
+        - name: Call CheckObjectsPreExistence
+          include_role:
+            name: CheckObjectsPreExistence
+
+        - name: qualify_for_ValidateVG
+          set_fact:
+            qualify_for_ValidateVG: "t"
+          when: host_found == "t" and already_exists_LV == "f" and already_exists_FS == "f"
+
+        - name: Call ValidateVG
+          include_role:
+            name: ValidateVG
+          when: qualify_for_ValidateVG == "t"
+
+        - name: qualify_for_WorkOnIncrementValue
+          set_fact:
+            qualify_for_WorkOnIncrementValue: "t"
+          when: qualify_for_ValidateVG == "t" and vg_valid != "f" and mirror_strictness_feasible == "t"
+
+        - name: Call WorkOnIncrementValue
+          include_role:
+            name: WorkOnIncrementValue
+          when: qualify_for_WorkOnIncrementValue == "t"
+
+        - name: qualify_for_FindAvlbSpace
+          set_fact:
+            qualify_for_FindAvlbSpace: "t"
+          when: qualify_for_WorkOnIncrementValue == "t" and inc_prefix != "" and inc_valid == "t"  
+
+        - name: Call FindAvlbSpace
+          include_role:
+            name: FindAvlbSpace
+          when : qualify_for_FindAvlbSpace == "t"
+
+        - name: qualify_for_DecideGoNoGo
+          set_fact:
+            qualify_for_DecideGoNoGo: "t"
+          when: qualify_for_FindAvlbSpace == "t" and free_pps|int != 0
+
+        - name: Call DecideGoNoGo
+          include_role:
+            name: DecideGoNoGo
+          when: qualify_for_DecideGoNoGo == "t"
+
+        - name: qualify_for_CreateLV
+          set_fact:
+            qualify_for_CreateLV: "t"
+          when: qualify_for_DecideGoNoGo == "t" and increase_size == "t"
+
+        - name: Call CreateLV
+          include_role:
+            name: CreateLV
+          when: qualify_for_CreateLV == "t"
+
+        - name: qualify_for_CreateFS
+          set_fact:
+            qualify_for_CreateFS: "t"
+          when: qualify_for_CreateLV == "t" and lvcr_success == "t"
+
+        - name: Call CreateFS
+          include_role:
+            name: CreateFS
+          when: qualify_for_CreateFS == "t"

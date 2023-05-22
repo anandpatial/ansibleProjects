@@ -1,0 +1,194 @@
+# Gathering relevant data to detect cluster presence and gather cluster data
+  
+  - name: check for cluster utilities folder
+    stat:
+      path: /usr/es/sbin/cluster/utilities
+    register: cls_utilities_stat
+
+  - name: set cluster utilities presence
+    set_fact:
+      cls_utilities_presence: "t"
+    when: cls_utilities_stat.stat.exists == true
+
+  - name: print cluster utilities presence
+    debug:
+      msg: "cluster utilities present: {{ cls_utilities_presence }}"
+
+  - block:
+    - name: exec clRGinfo fetch online nodes and resource group
+      shell: "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i online|awk -F \" \"  '{print $1 \":\" $3}'"
+      register: clrginfo_online_res_nodes_record
+
+    - name: exec clRGinfo fetch offline nodes
+      shell: "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i offline|awk -F \" \" '{print $2}'"
+      register: clrginfo_offline_nodes
+
+    - name: print clrginfo_offline_nodes
+      debug:
+        msg: "{{clrginfo_offline_nodes}}" 
+
+    - name: create empty list
+      set_fact:
+        empty_list: "{{empty_list|default([])}}"
+
+    - name: initialize cls_offline_node_list
+      set_fact:
+        cls_offline_node_list: "{{empty_list}}"  
+
+    - name: set fact cls_offline_node_list
+      set_fact:
+        cls_offline_node_list: "{{clrginfo_offline_nodes.stdout_lines}}"
+      when: clrginfo_offline_nodes.stderr == ""
+
+    - name: set fact cls_offline_node_fetch_stderr
+      set_fact:
+        cls_offline_node_fetch_stderr: "{{clrginfo_offline_nodes.stderr}}"
+      when: clrginfo_offline_nodes.stderr != ""
+
+    - name: print cls_offline_node_fetch_stderr
+      debug:
+        msg: "{{cls_offline_node_fetch_stderr}}"
+      when: cls_offline_node_fetch_stderr != ""
+
+   #comment below dummy data that was used to test the creation of online resource node dictionary list
+
+      #- name: set dummy data
+      #set_fact:
+      # dummy_data:
+      #   - rg1:node1
+      #   - rg2:node2
+      #   - rg3:node3
+      #delegate_to: 127.0.0.1
+
+      #Below is the better approach to create the list of the dictionary items. Using split , this could be scaled to more than two fields and I am going to use this approach
+    - name: print online resource-node record
+      debug:
+        msg: "{{clrginfo_online_res_nodes_record}}"
+
+
+    - name: initialize res_node_list
+      set_fact:
+        res_node_list: "{{res_node_list|default([])}}"
+
+    - name: loop to split the record to list and create list of dictionary rgroup:value, node:value
+      set_fact:
+        res_node_list: "{{res_node_list|default([]) + [{'rgroup':'', 'node': ''} |combine({'rgroup': record_split[0]|from_yaml, 'node': record_split[1]|from_yaml })]}}"
+      loop: "{{clrginfo_online_res_nodes_record.stdout_lines}}"
+      vars:
+        record_split: "{{[] + item.split(':')}}"
+      when: clrginfo_online_res_nodes_record.stderr == ""
+
+    - name: set fact cls_online_res_node_fetch_stderr
+      set_fact:
+        cls_online_res_node_fetch_stderr: "{{clrginfo_online_res_nodes_record.stderr}}"
+      when: clrginfo_online_res_nodes_record.stderr != ""
+
+    - name: print cls_online_res_node_fetch_stderr
+      debug:
+        msg: "{{cls_online_res_node_fetch_stderr}}"
+      when: cls_online_res_node_fetch_stderr != ""
+      
+
+    - name: print res_node_list
+      debug:
+        msg: "{{res_node_list}}"
+      
+
+
+        #The below approach was tried first where the two fields seperated by ':' were extracted using regex. Then two independent lists were created
+        #Then these lists were taken as an input to write a list of dictionary items on fly.
+        #problem here is that this approach is not scalable because if I add additional fields, how am I going to use the regex to extract the fields 
+
+
+        # - name: create resource-group and node lists dynamically
+        #set_fact:
+        #res_list: "{{res_list|default([]) + [item|regex_search('.+:')|regex_search('.+[^:]')]}}"
+        #node_list: "{{node_list|default([]) + [item|regex_search(':.+')|regex_search('[^:].+')]}}"
+        #loop: "{{dummy_data}}"
+      # loop: "{{clgrginfo_output}}" 
+      #delegate_to: 127.0.0.1
+
+      #- name: print res_dict
+      #debug:
+      # msg:
+      #   - "{{res_list}}"
+      #   - "{{node_list}}"
+      #delegate_to: 127.0.0.1
+
+        #- name: create list of dictionary dynamically
+        #set_fact:
+        #    dict_list: "{{dict_list|default([]) + [{'resource_group': '', 'node': ''}|combine({'resource_group': _rg|from_yaml, 'node': _node|from_yaml})]}}"
+        
+        #loop: "{{res_list}}" 
+        #vars:
+        #_rg: "{{res_list[index]}}"
+        #_node: "{{node_list[index]}}"
+        #loop_control:
+        #index_var: index
+        #delegate_to: 127.0.0.1
+
+        #- name: print new updated dictionary list
+        #debug:
+        #msg: "{{dict_list}}"
+
+    - name: try assign res_node_list to global variable
+      set_fact:
+        cls_res_node_dict_list: "{{res_node_list}}"
+    
+    - name: print cls_res_node_dict_list
+      debug:
+        msg: "{{cls_res_node_dict_list}}"
+
+    - name: print cls_offline_node_list
+      debug:
+        msg: "{{cls_offline_node_list}}"
+
+
+          #Now dealing with the cllsfs data. This has to be a single record with the first field of interest which is resource group name.
+          #    #if we get a value here. The node for corresponding RG need to be found from the cls_res_node_dict_list.
+          #        #Set fs_active_node
+          #              #This node need to be compared with current host.
+          #                    #If there is a match. Set use_cspoc="t"
+          #                          #If there is no match. Exit with message - The filesystem need to be changed from fs_active_node
+          #                              #if we get no value. Set use_os="t"
+
+
+    - name: register cllsfs resource group
+      shell: "/usr/es/sbin/cluster/utilities/cllsfs|grep -w {{filesystem_mount_point}}|awk -F \" \" '{print $1}'"
+      register: cllsfs_reg
+
+    - name: print cllsfs_reg
+      debug:
+        msg: "{{cllsfs_reg}}"
+
+    - name: set fact cllsfs_rg
+      set_fact:
+        cllsfs_rg: "{{cllsfs_reg.stdout}}"
+
+
+    - name: print cllsfs_rg
+      debug:
+        msg: "{{cllsfs_rg}}"
+
+    - name: find the corresponding node in cls_res_node_dict_list
+      set_fact:
+        cls_fs_active_node: "{{item.node}}"
+      when: cllsfs_rg == item.rgroup
+      loop: "{{cls_res_node_dict_list}}"
+
+    - name: print cls_fs_active_node
+      debug:
+        msg: "{{cls_fs_active_node}}"
+             
+    rescue:
+    - name: print rescue message        
+      debug:
+        msg: "clRGinfo rescue"
+    when: cls_utilities_presence == "t"
+
+
+
+
+
+
+

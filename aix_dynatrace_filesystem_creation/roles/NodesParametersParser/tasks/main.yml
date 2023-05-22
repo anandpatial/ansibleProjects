@@ -1,0 +1,25 @@
+  - name: scan map and set input parameters
+    set_fact:
+      filesystem_mount_point: "{{ item.mount_point }}"
+      size_increment: "{{ item.size  }}"
+      fscr_lv_name: "{{ item.lv_name }}"
+      lvcr_copies: "{{item.lv_copies}}"
+      fs_vg: "{{ item.vg }}"
+
+      host_found: "t"
+    when: inventory_hostname == item.host and host_found == "f"  
+    loop: "{{ map  }}"
+    
+    
+  - name: print variables
+    debug:
+      msg: "filesystem: {{ filesystem_mount_point }} size: {{ size_increment }} lv_name: {{fscr_lv_name}} vg: {{fs_vg}} host_found: {{ host_found }}"
+
+  - name: msg exit play if host not found
+    debug:
+      msg: "Host not found in the map. Play Ends"
+    when: host_found == "f"
+
+    #- name: end play  - Never use - produce unexpected results from Ansible controller regarding execution order
+    #meta: end_play
+    #when: host_found == "f"

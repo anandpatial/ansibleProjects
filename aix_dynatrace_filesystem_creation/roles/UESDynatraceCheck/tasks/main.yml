@@ -1,0 +1,31 @@
+  - name: check VG name for Dynatrace Activity
+    set_fact:
+      rootvg_check: "{{'t'| default('f')}}"
+    when: fs_vg == "rootvg"
+
+  - name: check LV names for Dynatrace Activity
+    set_fact:
+      lvname_check: "{{'t'| default('f')}}"
+    when: fscr_lv_name == "lv_dynatrc" or fscr_lv_name == "lv_dtlib"
+
+  - name: check FS names for Dynatrace Activity
+    set_fact:
+      fsname_check: "{{'t'| default('f')}}"
+    when: filesystem_mount_point == "/opt/dynatrace" or filesystem_mount_point == "/var/lib/dynatrace"
+
+  - name: set UESCheckPassed
+    set_fact:
+      UESCheckPassed: "t"
+    when: rootvg_check == "t" and lvname_check == "t" and fsname_check == "t"
+
+  - name: display UESCheck
+    debug:
+      msg: "VG: rootvg ? {{fs_vg}} | LV: lv_dynatrc or lv_dtlib ? {{fscr_lv_name}} | FS: /opt/dynatrace or /var/lib/dynatrace ? {{filesystem_mount_point}} | {{rootvg_check}}, {{lvname_check}}, {{fsname_check}} | UESCheckPassed ? {{UESCheckPassed}}"
+
+  - name: message when UESCheck Fails
+    debug:
+      msg: "The UES Check conditions not met. The Play Ends"
+    when: UESCheckPassed == "f"
+
+  
+

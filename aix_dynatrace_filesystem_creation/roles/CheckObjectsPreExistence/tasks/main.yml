@@ -1,0 +1,49 @@
+  
+  - block:
+    - name: check if LV already exists
+      shell: "lslv {{fscr_lv_name}}"
+      register: buffer
+
+
+    - name: debug buffer
+      debug:
+        msg: "{{buffer}}"
+    
+    - name: debug print message for pre existence of LV
+      debug:
+        msg: "The LV : {{fscr_lv_name}} already exists. The Play ends"
+      when: buffer.failed == false
+    
+    
+    rescue:
+      - name: print rescue message
+        debug:
+          msg: "LV does not pre-exists. Program to proceed further"
+
+      - name: set already_exists_LV to false
+        set_fact:
+          already_exists_LV: "f"
+       
+
+      - block:
+        - name: check if FS already exists
+          shell: "lsfs {{filesystem_mount_point}}"
+          register: buffer
+
+        - name: debug buffer
+          debug:
+            msg: "{{buffer}}" 
+
+        - name: debug print message for pre existance of FS
+          debug: 
+            msg: "The FS : {{filesystem_mount_point}} already exists. The Play ends"
+          when: buffer.failed == false
+
+        rescue:
+          - name: print rescue message
+            debug: 
+              msg: "FS does not pre-exists. Program to proceed further"
+   
+          - name: set already_exists_FS to false
+            set_fact:
+              already_exists_FS: "f"

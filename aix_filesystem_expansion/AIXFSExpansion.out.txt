@@ -1,0 +1,866 @@
+
+PLAY [StartOnFSExpansion] *************************************************************************************************************************************************************************************************
+
+TASK [Call NodesParametersParser] *****************************************************************************************************************************************************************************************
+
+TASK [NodesParametersParser : scan map and set input parameters] **********************************************************************************************************************************************************
+skipping: [pzaeng38.pldc.kp.org] => (item={'host': 'pzaeng5_not_in_inventory.pldc.kp.org', 'mount_point': '/tmp', 'size_incr': 1024}) 
+skipping: [pzaeng39.pldc.kp.org] => (item={'host': 'pzaeng5_not_in_inventory.pldc.kp.org', 'mount_point': '/tmp', 'size_incr': 1024}) 
+skipping: [pzaeng63.pldc.kp.org] => (item={'host': 'pzaeng5_not_in_inventory.pldc.kp.org', 'mount_point': '/tmp', 'size_incr': 1024}) 
+skipping: [pzaeng38.pldc.kp.org] => (item={'host': 'pzaeng63.pldc.kp.org', 'mount_point': '/tmp', 'size_incr': '128m'}) 
+skipping: [pzaeng39.pldc.kp.org] => (item={'host': 'pzaeng63.pldc.kp.org', 'mount_point': '/tmp', 'size_incr': '128m'}) 
+skipping: [pzaeng38.pldc.kp.org] => (item={'host': 'pzaeng39.pldc.kp.org', 'mount_point': '/bfs', 'size_incr': '128m'}) 
+ok: [pzaeng63.pldc.kp.org] => (item={'host': 'pzaeng63.pldc.kp.org', 'mount_point': '/tmp', 'size_incr': '128m'})
+ok: [pzaeng39.pldc.kp.org] => (item={'host': 'pzaeng39.pldc.kp.org', 'mount_point': '/bfs', 'size_incr': '128m'})
+skipping: [pzaeng63.pldc.kp.org] => (item={'host': 'pzaeng39.pldc.kp.org', 'mount_point': '/bfs', 'size_incr': '128m'}) 
+ok: [pzaeng38.pldc.kp.org] => (item={'host': 'pzaeng38.pldc.kp.org', 'mount_point': '/bfs', 'size_incr': '128m'})
+skipping: [pzaeng39.pldc.kp.org] => (item={'host': 'pzaeng38.pldc.kp.org', 'mount_point': '/bfs', 'size_incr': '128m'}) 
+skipping: [pzaeng63.pldc.kp.org] => (item={'host': 'pzaeng38.pldc.kp.org', 'mount_point': '/bfs', 'size_incr': '128m'}) 
+
+TASK [NodesParametersParser : print variables] ****************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "filesystem: /tmp size_increment: 128m host_found: t"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "filesystem: /bfs size_increment: 128m host_found: t"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "filesystem: /bfs size_increment: 128m host_found: t"
+}
+
+TASK [NodesParametersParser : msg exit play if host not found] ************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [set QualifyFor_ValidateFS_DetectVG] *********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [Call ValidateFS_DetectVG] *******************************************************************************************************************************************************************************************
+
+TASK [ValidateFS_DetectVG : fetch the filesystem] *************************************************************************************************************************************************************************
+changed: [pzaeng39.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+changed: [pzaeng63.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : set filesystem validity] **********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : fetch the volume name] ************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : get Volume details] ***************************************************************************************************************************************************************************
+changed: [pzaeng39.pldc.kp.org]
+changed: [pzaeng63.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : display Volume detail buffer] *****************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "lslv \"hd3\"|grep -e \"VOLUME GROUP\" -e \"MAX LPs\" -e \"COPIES\" -e \"LPs\"",
+        "delta": "0:00:00.168802",
+        "end": "2022-10-20 20:37:34.323217",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:34.154415",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "LOGICAL VOLUME:     hd3                    VOLUME GROUP:   rootvg\nMAX LPs:            5                      PP SIZE:        256 megabyte(s)\nCOPIES:             1                      SCHED POLICY:   parallel\nLPs:                4                      PPs:            4",
+        "stdout_lines": [
+            "LOGICAL VOLUME:     hd3                    VOLUME GROUP:   rootvg",
+            "MAX LPs:            5                      PP SIZE:        256 megabyte(s)",
+            "COPIES:             1                      SCHED POLICY:   parallel",
+            "LPs:                4                      PPs:            4"
+        ]
+    }
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "lslv \"fslv17\"|grep -e \"VOLUME GROUP\" -e \"MAX LPs\" -e \"COPIES\" -e \"LPs\"",
+        "delta": "0:00:00.171425",
+        "end": "2022-10-20 20:37:30.400644",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:30.229219",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "LOGICAL VOLUME:     fslv17                 VOLUME GROUP:   appsvg\nMAX LPs:            512                    PP SIZE:        64 megabyte(s)\nCOPIES:             1                      SCHED POLICY:   parallel\nLPs:                97                     PPs:            97",
+        "stdout_lines": [
+            "LOGICAL VOLUME:     fslv17                 VOLUME GROUP:   appsvg",
+            "MAX LPs:            512                    PP SIZE:        64 megabyte(s)",
+            "COPIES:             1                      SCHED POLICY:   parallel",
+            "LPs:                97                     PPs:            97"
+        ]
+    }
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "lslv \"fslv17\"|grep -e \"VOLUME GROUP\" -e \"MAX LPs\" -e \"COPIES\" -e \"LPs\"",
+        "delta": "0:00:00.167370",
+        "end": "2022-10-20 20:37:34.324321",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:34.156951",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "LOGICAL VOLUME:     fslv17                 VOLUME GROUP:   appsvg\nMAX LPs:            512                    PP SIZE:        64 megabyte(s)\nCOPIES:             1                      SCHED POLICY:   parallel\nLPs:                97                     PPs:            97",
+        "stdout_lines": [
+            "LOGICAL VOLUME:     fslv17                 VOLUME GROUP:   appsvg",
+            "MAX LPs:            512                    PP SIZE:        64 megabyte(s)",
+            "COPIES:             1                      SCHED POLICY:   parallel",
+            "LPs:                97                     PPs:            97"
+        ]
+    }
+}
+
+TASK [ValidateFS_DetectVG : fetch volume group] ***************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : fetch LV copies] ******************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : display LV copies] ****************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "1"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "1"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "1"
+}
+
+TASK [ValidateFS_DetectVG : fetch MAX LPs and PP size and current FS LPs] *************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : display MAX LPs and PP size data] *************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "5 PPint: 256 PPunit: megabyte curLPs: 4"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "512 PPint: 64 PPunit: megabyte curLPs: 97"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "512 PPint: 64 PPunit: megabyte curLPs: 97"
+}
+
+TASK [ValidateFS_DetectVG : set VG validity] ******************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [ValidateFS_DetectVG : message if vg validity is not set and then exit play] *****************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [debug ValidateFS_DetectVG switches] *********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "QualifyFor_ValidateFS_DetectVG: t | fs_result: {'changed': True, 'end': '2022-10-20 20:37:26.381946', 'stdout': '/dev/hd3        --         /tmp                   jfs2  2097152 --         yes  no \\n/dev/test-lv    --         /tmp/mnt               jfs2  524288  --         no   no ', 'cmd': 'lsfs|grep -i \"/tmp\"', 'rc': 0, 'start': '2022-10-20 20:37:26.310758', 'stderr': '', 'delta': '0:00:00.071188', 'stdout_lines': ['/dev/hd3        --         /tmp                   jfs2  2097152 --         yes  no ', '/dev/test-lv    --         /tmp/mnt               jfs2  524288  --         no   no '], 'stderr_lines': [], 'ansible_facts': {'discovered_interpreter_python': '/usr/bin/python'}, 'warnings': ['Platform aix on host pzaeng63.pldc.kp.org is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.'], 'failed': False} | lslv_exception: f | vg_valid: t"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "QualifyFor_ValidateFS_DetectVG: t | fs_result: {'changed': True, 'end': '2022-10-20 20:37:16.208745', 'stdout': '/dev/fslv17     --         /bfs                   jfs2  12713984 --         no   no ', 'cmd': 'lsfs|grep -i \"/bfs\"', 'rc': 0, 'start': '2022-10-20 20:37:16.112443', 'stderr': '', 'delta': '0:00:00.096302', 'stdout_lines': ['/dev/fslv17     --         /bfs                   jfs2  12713984 --         no   no '], 'stderr_lines': [], 'ansible_facts': {'discovered_interpreter_python': '/usr/bin/python'}, 'warnings': ['Platform aix on host pzaeng38.pldc.kp.org is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.'], 'failed': False} | lslv_exception: f | vg_valid: t"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "QualifyFor_ValidateFS_DetectVG: t | fs_result: {'changed': True, 'end': '2022-10-20 20:37:20.093578', 'stdout': '/dev/fslv17     --         /bfs                   jfs2  --      --         no   no ', 'cmd': 'lsfs|grep -i \"/bfs\"', 'rc': 0, 'start': '2022-10-20 20:37:20.020355', 'stderr': '', 'delta': '0:00:00.073223', 'stdout_lines': ['/dev/fslv17     --         /bfs                   jfs2  --      --         no   no '], 'stderr_lines': [], 'ansible_facts': {'discovered_interpreter_python': '/usr/bin/python'}, 'warnings': ['Platform aix on host pzaeng39.pldc.kp.org is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.'], 'failed': False} | lslv_exception: f | vg_valid: t"
+}
+
+TASK [set QualifyFor_GatherCluserData] ************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [debug switch QualifyFor_GatherClusterData] **************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "QualifyFor_GatherClusterData: t"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "QualifyFor_GatherClusterData: t"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "QualifyFor_GatherClusterData: t"
+}
+
+TASK [Call GatherClusterData] *********************************************************************************************************************************************************************************************
+
+TASK [GatherClusterData : check for cluster utilities folder] *************************************************************************************************************************************************************
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : set cluster utilities presence] *****************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print cluster utilities presence] ***************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "cluster utilities present: t"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "cluster utilities present: t"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "cluster utilities present: t"
+}
+
+TASK [GatherClusterData : exec clRGinfo fetch online nodes and resource group] ********************************************************************************************************************************************
+changed: [pzaeng63.pldc.kp.org]
+changed: [pzaeng39.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+
+TASK [GatherClusterData : exec clRGinfo fetch offline nodes] **************************************************************************************************************************************************************
+changed: [pzaeng39.pldc.kp.org]
+changed: [pzaeng63.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+
+TASK [GatherClusterData : print clrginfo_offline_nodes] *******************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i offline|awk -F \" \" '{print $2}'",
+        "delta": "0:00:00.072616",
+        "end": "2022-10-20 20:37:57.460298",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:57.387682",
+        "stderr": "clRGinfo: There is no cluster definition.\nA cluster and resource groups must be defined before information about them\nbecomes available.",
+        "stderr_lines": [
+            "clRGinfo: There is no cluster definition.",
+            "A cluster and resource groups must be defined before information about them",
+            "becomes available."
+        ],
+        "stdout": "",
+        "stdout_lines": []
+    }
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i offline|awk -F \" \" '{print $2}'",
+        "delta": "0:00:00.094036",
+        "end": "2022-10-20 20:37:53.639043",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:53.545007",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "pzaeng39",
+        "stdout_lines": [
+            "pzaeng39"
+        ]
+    }
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i offline|awk -F \" \" '{print $2}'",
+        "delta": "0:00:00.075214",
+        "end": "2022-10-20 20:37:57.472063",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:57.396849",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "pzaeng39",
+        "stdout_lines": [
+            "pzaeng39"
+        ]
+    }
+}
+
+TASK [GatherClusterData : create empty list] ******************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : initialize cls_offline_node_list] ***************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : set fact cls_offline_node_list] *****************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : set fact cls_offline_node_fetch_stderr] *********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print cls_offline_node_fetch_stderr] ************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "clRGinfo: There is no cluster definition.\nA cluster and resource groups must be defined before information about them\nbecomes available."
+}
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print online resource-node record] **************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i online|awk -F \" \"  '{print $1 \":\" $3}'",
+        "delta": "0:00:00.080343",
+        "end": "2022-10-20 20:37:50.751101",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:50.670758",
+        "stderr": "clRGinfo: There is no cluster definition.\nA cluster and resource groups must be defined before information about them\nbecomes available.",
+        "stderr_lines": [
+            "clRGinfo: There is no cluster definition.",
+            "A cluster and resource groups must be defined before information about them",
+            "becomes available."
+        ],
+        "stdout": "",
+        "stdout_lines": []
+    }
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i online|awk -F \" \"  '{print $1 \":\" $3}'",
+        "delta": "0:00:00.076068",
+        "end": "2022-10-20 20:37:46.876152",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:46.800084",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "AnsibleRG:pzaeng38",
+        "stdout_lines": [
+            "AnsibleRG:pzaeng38"
+        ]
+    }
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/clRGinfo|grep -i online|awk -F \" \"  '{print $1 \":\" $3}'",
+        "delta": "0:00:00.076609",
+        "end": "2022-10-20 20:37:50.798878",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:37:50.722269",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "AnsibleRG:pzaeng38",
+        "stdout_lines": [
+            "AnsibleRG:pzaeng38"
+        ]
+    }
+}
+
+TASK [GatherClusterData : initialize res_node_list] ***********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : loop to split the record to list and create list of dictionary rgroup:value, node:value] ********************************************************************************************************
+ok: [pzaeng38.pldc.kp.org] => (item=AnsibleRG:pzaeng38)
+ok: [pzaeng39.pldc.kp.org] => (item=AnsibleRG:pzaeng38)
+
+TASK [GatherClusterData : set fact cls_online_res_node_fetch_stderr] ******************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print cls_online_res_node_fetch_stderr] *********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "clRGinfo: There is no cluster definition.\nA cluster and resource groups must be defined before information about them\nbecomes available."
+}
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print res_node_list] ****************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": []
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": [
+        {
+            "node": "pzaeng38",
+            "rgroup": "AnsibleRG"
+        }
+    ]
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": [
+        {
+            "node": "pzaeng38",
+            "rgroup": "AnsibleRG"
+        }
+    ]
+}
+
+TASK [GatherClusterData : try assign res_node_list to global variable] ****************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print cls_res_node_dict_list] *******************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": []
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": [
+        {
+            "node": "pzaeng38",
+            "rgroup": "AnsibleRG"
+        }
+    ]
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": [
+        {
+            "node": "pzaeng38",
+            "rgroup": "AnsibleRG"
+        }
+    ]
+}
+
+TASK [GatherClusterData : print cls_offline_node_list] ********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": []
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": [
+        "pzaeng39"
+    ]
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": [
+        "pzaeng39"
+    ]
+}
+
+TASK [GatherClusterData : register cllsfs resource group] *****************************************************************************************************************************************************************
+changed: [pzaeng63.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+changed: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print cllsfs_reg] *******************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/cllsfs|grep -w /tmp|awk -F \" \" '{print $1}'",
+        "delta": "0:00:00.072738",
+        "end": "2022-10-20 20:38:06.686051",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:38:06.613313",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "",
+        "stdout_lines": []
+    }
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/cllsfs|grep -w /bfs|awk -F \" \" '{print $1}'",
+        "delta": "0:00:00.189650",
+        "end": "2022-10-20 20:38:02.779634",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:38:02.589984",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "AnsibleRG",
+        "stdout_lines": [
+            "AnsibleRG"
+        ]
+    }
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/utilities/cllsfs|grep -w /bfs|awk -F \" \" '{print $1}'",
+        "delta": "0:00:00.140951",
+        "end": "2022-10-20 20:38:06.754158",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:38:06.613207",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "AnsibleRG",
+        "stdout_lines": [
+            "AnsibleRG"
+        ]
+    }
+}
+
+TASK [GatherClusterData : set fact cllsfs_rg] *****************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [GatherClusterData : print cllsfs_rg] ********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": ""
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "AnsibleRG"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "AnsibleRG"
+}
+
+TASK [GatherClusterData : find the corresponding node in cls_res_node_dict_list] ******************************************************************************************************************************************
+ok: [pzaeng38.pldc.kp.org] => (item={'rgroup': 'AnsibleRG', 'node': 'pzaeng38'})
+ok: [pzaeng39.pldc.kp.org] => (item={'rgroup': 'AnsibleRG', 'node': 'pzaeng38'})
+
+TASK [GatherClusterData : print cls_fs_active_node] ***********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": ""
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "pzaeng38"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "pzaeng38"
+}
+
+TASK [set QualifyFor_DecisionPath] ****************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [Call DecisionPath] **************************************************************************************************************************************************************************************************
+
+TASK [DecisionPath : extract hostname out of inventory host] **************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [DecisionPath : print inv_hostname] **********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "inv hostname: pzaeng63"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "inv hostname: pzaeng38"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "inv hostname: pzaeng39"
+}
+
+TASK [DecisionPath : check and set cluster membership] ********************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [DecisionPath : check to set use_os] *********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [DecisionPath : check to set use_cspoc="t"] **************************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [DecisionPath : set not_active_node_for_fs] **************************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org]
+
+TASK [DecisionPath : print path] ******************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "cluster member: f use os: t use cspoc: f"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "cluster member: t use os: f use cspoc: t"
+}
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "cluster member: t use os: f use cspoc: f"
+}
+
+TASK [DecisionPath : print msg to End the Play when not_active_node_for_fs="t"] *******************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+ok: [pzaeng39.pldc.kp.org] => {
+    "msg": "This Node is a Cluster member. However, this node is not an active node for the filesystem RG. Use the active node: pzaeng38 in the inventory list to change this filesystem. The Play Ends here."
+}
+
+TASK [set QualifyFor_WorkOnIncrementValue] ********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [Call WorkOnIncrementValue] ******************************************************************************************************************************************************************************************
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : convert increment in string format] **********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : find increament unit - get suffix] ***********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : find the number - get prefix] ****************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : print increament suffix] *********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "m"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "m"
+}
+
+TASK [WorkOnIncrementValue : print prefix_number] *************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "128"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "128"
+}
+
+TASK [WorkOnIncrementValue : end play if prefix value is null] ************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : validate increament value when suffix is in Gigabytes] ***************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : validate increament value when suffix is in Megabytes] ***************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : validate increament value when suffix is empty] **********************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [WorkOnIncrementValue : print debug message if the increament value is not valid] ************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [set QualifyFor_FindAvlbSpace] ***************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [Call FindAvlbSpace] *************************************************************************************************************************************************************************************************
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [FindAvlbSpace : gather fact lsvg rootvg] ****************************************************************************************************************************************************************************
+changed: [pzaeng63.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+
+TASK [FindAvlbSpace : fetch FREE PPs] *************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [FindAvlbSpace : print debug message] ********************************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [FindAvlbSpace : fetch FREE space] ***********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [FindAvlbSpace : fetch FREE space unit] ******************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [set QualifyFor_DecideGoNoGo] ****************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [Call DecideGoNoGo] **************************************************************************************************************************************************************************************************
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [DecideGoNoGo : Find PP size in bytes when unit is megabyte] *********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Find PP size in bytes when unit is gigabyte] *********************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : debug pp_size_bytes] *********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "268435456"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "67108864"
+}
+
+TASK [DecideGoNoGo : Find Filesystem Current Size in Bytes] ***************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Debug fs_cur_size_bytes] *****************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "1073741824"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "6509559808"
+}
+
+TASK [DecideGoNoGo : Find Filesystem MAX Allowed size in Bytes] ***********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Debug fs_max_allowed_size_bytes] *********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "1342177280"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "34359738368"
+}
+
+TASK [DecideGoNoGo : Find Filesystem resultant size if it is increased] ***************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Debug fs_result_size_if_incr_bytes] ******************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "1207959552"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "6643777536"
+}
+
+TASK [DecideGoNoGo : Decide on  MAX LPs / MAX FS size condition] **********************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Adjust Mirror Factor] ********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Find available space in bytes when free PPs unit is megabytes] ***************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Find available space in bytes when free PPs unit is gigabytes] ***************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : print available space in bytes] **********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "13958643712"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "5301600256"
+}
+
+TASK [DecideGoNoGo : Deside on size increase when size increament suffix is empty] ****************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Decide on size increase when size increament suffix is in gigabytes] *********************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : Decide on size increase when size increament suffix is in megabytes] *********************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [DecideGoNoGo : print Decision on size increase] *********************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "increase_size? t increment in bytes 134217728 suffix= M  empty= f maxlps_exceed= f mirror_adjusted_size= 134217728"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "increase_size? t increment in bytes 134217728 suffix= M  empty= f maxlps_exceed= f mirror_adjusted_size= 134217728"
+}
+
+TASK [DecideGoNoGo : print debug message] *********************************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [set QualifyFor_ExecFSIncrease] **************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [Call ExecFSIncrease] ************************************************************************************************************************************************************************************************
+skipping: [pzaeng39.pldc.kp.org]
+
+TASK [ExecFSIncrease : create command when use_os] ************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org]
+skipping: [pzaeng38.pldc.kp.org]
+
+TASK [ExecFSIncrease : create command when use_cspoc] *********************************************************************************************************************************************************************
+skipping: [pzaeng63.pldc.kp.org]
+ok: [pzaeng38.pldc.kp.org]
+
+TASK [ExecFSIncrease : print command] *************************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "chfs -a size=+128M /tmp"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "/usr/es/sbin/cluster/cspoc/cli_chfs -a size=+128M /bfs"
+}
+
+TASK [ExecFSIncrease : increase FS] ***************************************************************************************************************************************************************************************
+changed: [pzaeng63.pldc.kp.org]
+changed: [pzaeng38.pldc.kp.org]
+
+TASK [ExecFSIncrease : print chfs result] *********************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "chfs -a size=+128M /tmp",
+        "delta": "0:00:01.050665",
+        "end": "2022-10-20 20:38:31.925556",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:38:30.874891",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "Filesystem size changed to 2621440",
+        "stdout_lines": [
+            "Filesystem size changed to 2621440"
+        ]
+    }
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": {
+        "changed": true,
+        "cmd": "/usr/es/sbin/cluster/cspoc/cli_chfs -a size=+128M /bfs",
+        "delta": "0:00:03.622788",
+        "end": "2022-10-20 20:38:30.581992",
+        "failed": false,
+        "rc": 0,
+        "start": "2022-10-20 20:38:26.959204",
+        "stderr": "",
+        "stderr_lines": [],
+        "stdout": "",
+        "stdout_lines": []
+    }
+}
+
+TASK [ExecFSIncrease : print Success status] ******************************************************************************************************************************************************************************
+ok: [pzaeng63.pldc.kp.org] => {
+    "msg": "This FS Expansion Operation has been successfull: failed: False"
+}
+ok: [pzaeng38.pldc.kp.org] => {
+    "msg": "This FS Expansion Operation has been successfull: failed: False"
+}
+
+PLAY RECAP ****************************************************************************************************************************************************************************************************************
+pzaeng38.pldc.kp.org       : ok=78   changed=7    unreachable=0    failed=0    skipped=20   rescued=0    ignored=0   
+pzaeng39.pldc.kp.org       : ok=46   changed=5    unreachable=0    failed=0    skipped=16   rescued=0    ignored=0   
+pzaeng63.pldc.kp.org       : ok=78   changed=7    unreachable=0    failed=0    skipped=20   rescued=0    ignored=0   
+

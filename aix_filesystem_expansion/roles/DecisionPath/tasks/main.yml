@@ -1,0 +1,65 @@
+  # check and set cluster membership
+  # -- check the offline and online node lists. if both are empty . not a cluster member else a cluster member
+  # -- if cluster member . check for cls_fs_active_node. if empty set use_os="t"
+  # -- if not empty. check if this active node is the current inventory host. if yes set use_cspoc="t" else set not_active_node_for_fs="t"
+  
+  - name: extract hostname out of inventory host
+    set_fact:
+      inv_hostname: "{{inventory_hostname|regex_search('[^\\.]*')}}"
+
+  - name: print inv_hostname
+    debug:
+      msg: "inv hostname: {{inv_hostname}}" 
+  
+  - name: check and set cluster membership
+    set_fact:
+      cls_membership: "t"
+    when: cls_res_node_dict_list != [] or cls_offline_node_list != []
+
+  - name: check to set use_os
+    set_fact:
+      use_os: "t"
+    when: cls_fs_active_node == ''
+
+  - name: check to set use_cspoc="t"
+    set_fact:
+      use_cspoc: "t"
+    when: cls_membership == "t" and use_os == "f" and cls_fs_active_node == inv_hostname
+
+  - name: set not_active_node_for_fs
+    set_fact:
+      not_active_node_for_fs: "t"
+    when: cls_membership == "t" and use_os == "f" and use_cspoc == "f"
+
+  - name: print path
+    debug:
+      msg: "cluster member: {{cls_membership}} use os: {{use_os}} use cspoc: {{use_cspoc}}"
+
+  - name: print msg to End the Play when not_active_node_for_fs="t"
+    debug:
+      msg: "This Node is a Cluster member. However, this node is not an active node for the filesystem RG. Use the active node: {{cls_fs_active_node}} in the inventory list to change this filesystem. The Play Ends here."  
+    when: not_active_node_for_fs == "t"
+
+    #- name: end play if not_active_node_for_fs="t" - Never use - produce unexpected results from Ansible controller regarding execution order
+    #meta: end_play
+    #when: not_active_node_for_fs == "t" 
+
+    #- name: print msg to End the Play when cspoc required
+    #debug:
+    #  msg: "The cspoc is needed for this FS expansion. The cspoc module development is in-progress. Play Ends here"
+    #when: use_cspoc == "t"
+
+    #- name: end play if cspoc needed  - Never use - produce unexpected results from Ansible controller regarding execution order
+    #meta: end_play
+    #when: use_cspoc == "t"
+
+ 
+
+
+     
+
+
+
+  
+
+

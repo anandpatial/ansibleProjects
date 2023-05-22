@@ -1,0 +1,98 @@
+ #=====================Validate given filesystem and Identify the Volume Group========================================#
+- block:
+  - name: fetch the filesystem
+    shell: lsfs|grep -i "{{ filesystem_mount_point  }}"
+    register: fs_result
+
+    #rescue:
+    #- set_fact:      
+    #    fs_result: ''
+    #- debug:
+    #    msg: "Please provide a Valid Filesystem Name. The Play Ends"
+    #    #- meta: end_play  - Never use - produce unexpected results from Ansible controller regarding execution order
+             
+
+  - name: set filesystem validity
+    set_fact:
+      fs_valid: "t"
+    when: fs_result != ''
+  
+  - name: fetch the volume name
+    set_fact:
+      fs_volume: "{{ fs_result.stdout_lines[0]| regex_search('(?<=/dev/)\\w+-*\\w+') }}"
+    when: fs_valid == "t"
+  
+  - name: lslv output block
+    block:
+    - name: get Volume details
+      shell: lslv "{{ fs_volume  }}"|grep -e "VOLUME GROUP" -e "MAX LPs" -e "COPIES" -e "LPs" 
+      register: buffer
+        #rescue:
+        #- name: exception message
+        #debug:
+        #  msg: "An Exception Occurred while listing the Logical Volume. Please check the code. The Play Ends"
+        #  #- name: end the play  - Never use - produce unexpected results from Ansible controller regarding execution order
+        #  #meta: end_play
+  
+        #- name: display buffer
+        #debug:
+        #msg: "{{ buffer.stdout_lines[0]  }}"
+
+    - name: display Volume detail buffer
+      debug:
+        msg: "{{buffer}}"
+  
+    - name: fetch volume group
+      set_fact:
+        fs_vg: "{{ buffer.stdout_lines[0]| regex_search('(?<=VOLUME\\sGROUP:).+')| regex_search('\\w+-*\\w+') }}"
+
+    - name: fetch LV copies
+      set_fact:
+        lv_copies: "{{buffer.stdout_lines[2]| regex_search('(?<=COPIES:).+')|regex_search('\\w+')}}"
+
+    - name: display LV copies
+      debug:
+        msg: "{{lv_copies}}"
+
+    - name: fetch MAX LPs and PP size and current FS LPs
+      set_fact:
+        lv_maxlps: "{{buffer.stdout_lines[1]| regex_search('(?<=MAX\\sLPs:).+')| regex_search('\\w+')}}"
+        pp_size_int: "{{buffer.stdout_lines[1]| regex_search('(?<=PP\\sSIZE:).+')| regex_search('\\w+')}}"
+        pp_size_unit: "{{buffer.stdout_lines[1]| regex_search('(?<=PP\\sSIZE:).*')| regex_search('[a-z]+')}}"
+        lv_lps: "{{buffer.stdout_lines[3]| regex_search('(?<=LPs:).+')| regex_search('\\w+')}}"
+
+    - name: display MAX LPs and PP size data
+      debug:
+        msg: "{{lv_maxlps}} PPint: {{pp_size_int}} PPunit: {{pp_size_unit}} curLPs: {{lv_lps}}"
+  
+    - name: set VG validity
+      set_fact:
+        vg_valid: "t"
+      when: fs_vg != ''
+
+    - name: message if vg validity is not set and then exit play
+      debug:
+        msg: "Volume Group Name could not be extracted successfully. Please check the VG name and the code. Exiting play"
+      when: vg_valid == "f"
+    rescue:
+    - name: set fact lslv exception
+      set_fact:
+        lslv_exception: "t"
+    - name: exception message
+      debug:
+        msg: "An Exception Occurred while listing the Logical Volume. Please check the code. The Play Ends"
+
+  rescue:
+  - set_fact:
+      fs_result: ''
+  - debug:
+      msg: "Please provide Valid Filesystem. The Play Ends"
+    #- name: end play  - Never use - produce unexpected results from Ansible controller regarding execution order
+    #meta: end_play
+    #when: vg_valid == "f"
+
+  
+  
+    #- name: print volumegroup name
+    #debug:
+    #  msg: "{{ fs_vg }}"

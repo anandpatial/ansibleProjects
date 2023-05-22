@@ -1,0 +1,45 @@
+ #####################################Increase FS size if decision permits###########################################################
+
+              - block:    
+                - name: create command when use_os
+                  set_fact:
+                        command: "chfs -a size=+{{ inc_prefix }}{{ suffix  }} {{ filesystem_mount_point }}"
+                  when: use_os == "t"
+
+                - name: create command when use_cspoc
+                  set_fact:
+                    command: "/usr/es/sbin/cluster/cspoc/cli_chfs -a size=+{{ inc_prefix }}{{ suffix  }} {{ filesystem_mount_point }}"
+                  when: use_cspoc == "t"
+
+
+                - name: print command
+                  debug:
+                          msg: "{{ command }}"
+
+                - name: increase FS
+                  shell: "{{ command }}"
+                  register: chfs_result
+                  when: increase_size == "t"
+
+                - name: print chfs result
+                  debug:
+                          msg: "{{ chfs_result }}"
+
+                - name: print Success status
+                  debug:
+                    msg: "This FS Expansion Operation has been successfull: failed: {{chfs_result.failed}}"
+                  when: chfs_result.failed == false
+                
+                rescue:
+                - name: print Failure Status
+                  debug:
+                    msg: "Operation Failed"
+
+                - name: print chfs_result
+                  debug:
+                    msg: "Failed: {{chfs_result.failed}}: ERR: {{chfs_result.stderr}}"
+                  when: chfs_result.failed == true
+                  
+
+
+

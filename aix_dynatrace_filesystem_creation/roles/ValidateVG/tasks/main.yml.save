@@ -1,0 +1,21 @@
+- block:  
+  - name: Check given VG
+    shell: "lsvg {{fs_vg}}|grep -e "
+    register: buffer
+  
+  - name: print buffer
+    debug:
+      msg: "{{buffer}}"
+
+  - name: Set VG Validity
+    set_fact:
+      vg_valid: "t"
+    when: buffer.stdout != ""
+  
+  - name: get total PVs out of buffer
+    
+  rescue:
+    - name: print message
+      debug:
+        msg: "The VG does not exist. Please provide a Valid VG name. Play Ends"
+  

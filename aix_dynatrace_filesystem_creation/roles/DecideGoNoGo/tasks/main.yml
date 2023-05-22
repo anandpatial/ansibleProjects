@@ -1,0 +1,52 @@
+     #==============================================Decide on Increament based on space availability========================================#
+
+                - name: Find available space in bytes when free PPs unit is megabytes
+                  set_fact:
+                          space_avlb_bytes: "{{ free_space|int * 1024 * 1024  }}"
+                  when: free_space_unit == "megabytes"
+
+                - name: Find available space in bytes when free PPs unit is gigabytes
+                  set_fact:
+                          space_avlb_bytes: "{{ free_space|int * 1024 * 1024 * 1024  }}"
+                  when: free_space_unit == "gigabytes"
+
+
+                - name: print available space in bytes
+                  debug:
+                        msg: "{{ space_avlb_bytes  }}"
+
+                - name: Calculate mirror_adjusted_space_requirement
+                  set_fact:
+                    mirror_adjusted_space_requirement_bytes: "{{increase_size_bytes|int * lvcr_copies|int}}"
+                
+                - name: Display FS size requirement and Mirror Adjusted space requirement
+                  debug:
+                    msg: "FS-Size-requirement-bytes: {{increase_size_bytes}} mirror-adjusted-space-requirement_bytes: {{mirror_adjusted_space_requirement_bytes}}"  
+
+                - name: Deside on size increase when size increament suffix is empty
+                  set_fact:
+                           increase_size: "t"
+                  when: suffix_empty == "t" and space_avlb_bytes|int >= mirror_adjusted_space_requirement_bytes|int and free_pps|int >= 1
+
+                - name: Decide on size increase when size increament suffix is in gigabytes
+                  set_fact:
+                           increase_size: "t"
+                  when: suffix == "G" and space_avlb_bytes|int >= mirror_adjusted_space_requirement_bytes|int and free_pps|int >= 1
+
+                - name: Decide on size increase when size increament suffix is in megabytes
+                  set_fact:
+                           increase_size: "t"
+                  when: suffix == "M" and space_avlb_bytes|int >= mirror_adjusted_space_requirement_bytes|int and free_pps|int >= 1
+
+                - name: print Decision on size increase
+                  debug:
+                          msg: "increase_size? {{ increase_size  }} FS-Size-requirement-bytes: {{ increase_size_bytes }} mirror-adjusted-space-requirement-bytes: {{ mirror_adjusted_space_requirement_bytes }} suffix: {{ suffix  }}  suffixempty: {{ suffix_empty }}"
+                
+                - name: end play if no go
+                  block:
+                    - name: print debug message
+                      debug:
+                        msg: "Decision to increase the size is a NO GO. Play Ends"
+                        #- name: end play - Never use - produce unexpected results from Ansible controller regarding execution order.
+                        #meta: end_play
+                  when: increase_size == "f"

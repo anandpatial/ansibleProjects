@@ -1,0 +1,96 @@
+# This is the control module serving the Filesystem Expansion of an Independent node
+# The User need to feed the Filesystem Mount Point and the Increment Value
+# The Increment Value can be in the unit of Gigabytes(G,GB,g,gb) or Megabytes(M,MB,m,mb)
+# Please Refer to Readme.txt for detailed usage document
+
+-
+        name: StartOnFSExpansion
+        vars_files:
+          - group_vars/target_servers.yml
+
+        hosts: all
+        gather_facts: false
+        become: yes
+        become_exe: pbrun
+        become_flags: ''
+        ignore_errors: no
+        
+
+        tasks:
+        - name: Call NodesParametersParser
+          include_role:
+            name: NodesParametersParser
+
+        - name: set QualifyFor_ValidateFS_DetectVG
+          set_fact:
+            QualifyFor_ValidateFS_DetectVG: "t"
+          when: host_found == "t"
+                
+        - name: Call ValidateFS_DetectVG
+          include_role:
+            name: ValidateFS_DetectVG
+          when: QualifyFor_ValidateFS_DetectVG == "t"
+
+        
+        - name: set QualifyFor_GatherCluserData
+          set_fact:
+            QualifyFor_GatherClusterData: "t"
+          when: QualifyFor_ValidateFS_DetectVG == "t" and fs_result != '' and lslv_exception != "t" and  vg_valid != "f"
+
+        
+        - name: Call GatherClusterData
+          include_role:
+            name: GatherClusterData
+          when: QualifyFor_GatherClusterData == "t"
+
+        - name: set QualifyFor_DecisionPath
+          set_fact:
+            QualifyFor_DecisionPath: "t"
+          when: QualifyFor_GatherClusterData == "t"
+                
+        - name: Call DecisionPath
+          include_role:
+            name: DecisionPath
+          when: QualifyFor_DecisionPath == "t"
+
+        - name: set QualifyFor_WorkOnIncrementValue
+          set_fact:
+            QualifyFor_WorkOnIncrementValue: "t"
+          when: QualifyFor_DecisionPath == "t" and not_active_node_for_fs == "f"
+
+        - name: Call WorkOnIncrementValue 
+          include_role:
+            name: WorkOnIncrementValue
+          when: QualifyFor_WorkOnIncrementValue == "t"
+
+        - name: set QualifyFor_FindAvlbSpace
+          set_fact:
+            QualifyFor_FindAvlbSpace: "t"
+          when: QualifyFor_WorkOnIncrementValue == "t" and inc_prefix != "" and inc_valid == "t"
+
+        - name: Call FindAvlbSpace
+          include_role:
+            name: FindAvlbSpace
+          when : QualifyFor_FindAvlbSpace == "t"
+
+        - name: set QualifyFor_DecideGoNoGo
+          set_fact:
+            QualifyFor_DecideGoNoGo: "t"
+          when: QualifyFor_FindAvlbSpace == "t" and free_pps|int != 0
+          
+        - name: Call DecideGoNoGo
+          include_role:
+            name: DecideGoNoGo
+          when: QualifyFor_DecideGoNoGo == "t"
+
+        - name: set QualifyFor_ExecFSIncrease
+          set_fact:
+            QualifyFor_ExecFSIncrease: "t"
+          when: QualifyFor_DecideGoNoGo == "t" and increase_size == "t"
+                
+        - name: Call ExecFSIncrease
+          include_role:
+            name: ExecFSIncrease
+          when: QualifyFor_ExecFSIncrease == "t"
+                
+                

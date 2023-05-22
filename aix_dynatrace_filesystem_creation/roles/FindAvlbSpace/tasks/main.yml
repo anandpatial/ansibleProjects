@@ -1,0 +1,42 @@
+ #===========================================Gather Free PP Details====================================================#
+
+
+                - name: gather fact lsvg rootvg
+                  shell: lsvg "{{ fs_vg  }}"|grep "FREE PPs:"
+                  register: lsvg_result
+
+                  #- name: print all items in stdout_lines
+                  #debug:
+                  #        msg: "{{ item }}"
+                  #loop: "{{ lsvg_result.stdout_lines }}"
+
+                - name: fetch FREE PPs
+                  set_fact:
+                          free_pps: "{{ lsvg_result.stdout_lines[0]| regex_search('(?<=FREE\\sPPs:)\\s+\\w+')| regex_search('\\w+') }}"
+
+                          #- name: print FREE PPS
+                          #debug:
+                          #msg: "{{ free_pps  }}"
+                          #
+                - name: end play when there are no free pps
+                  block:
+                    - name: print debug message
+                      debug:
+                        msg: "There is no Free Space. Play Ends"
+                      when: free_pps|int == 0
+                        #- name: end play  - Never use - produce unexpected results from Ansible controller regarding execution order
+                        #meta: end_play
+                        #when: free_pps|int == 0
+
+                - name: fetch FREE space
+                  set_fact:
+                        free_space: "{{ lsvg_result.stdout_lines[0]| regex_search('(?<=\\()\\d+') }}"
+
+                - name: fetch FREE space unit
+                  set_fact:
+                          free_space_unit: "{{ lsvg_result.stdout_lines[0]| regex_search('[a-z]*(?=\\))') }}"
+
+                          #- name: print free pp unit
+                          #debug:
+                          #msg: "{{ free_space_unit }}"
+

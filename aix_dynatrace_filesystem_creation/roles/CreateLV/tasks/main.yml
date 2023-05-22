@@ -1,0 +1,24 @@
+  - block:
+    - name: generate command 
+      set_fact:
+        command: "mklv -y {{fscr_lv_name}} -c {{lvcr_copies}} -t jfs2 {{fs_vg}} {{inc_prefix}}{{suffix}}"
+
+    - name: execute comand
+      shell: "{{command}}"
+      register: buffer
+
+    - name: print result buffer
+      debug:
+        msg: "{{buffer}}"
+    
+    - name: set LV Success status
+      set_fact:
+        lvcr_success: "t"
+    
+    rescue:
+      
+      - name: print rescue
+        debug:
+          msg: "Something went wrong: The play exits"
+     
+        

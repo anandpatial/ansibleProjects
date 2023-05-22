@@ -1,0 +1,90 @@
+     #==============================================Decide on Increament based on space availability========================================#
+                - name: Find PP size in bytes when unit is megabyte
+                  set_fact:
+                    pp_size_bytes: "{{pp_size_int|int * 1024 * 1024 }}"
+                  when: pp_size_unit == "megabyte"
+
+                - name: Find PP size in bytes when unit is gigabyte
+                  set_fact:
+                    pp_size_bytes: "{{pp_size_int|int * 1024 * 1024 * 1024 }}"
+                  when: pp_size_unit == "gigabyte"
+
+                - name: debug pp_size_bytes
+                  debug:
+                    msg: "{{pp_size_bytes}}"
+                
+                - name: Find Filesystem Current Size in Bytes
+                  set_fact:
+                    fs_cur_size_bytes: "{{lv_lps|int * pp_size_bytes|int}}"
+
+                - name: Debug fs_cur_size_bytes
+                  debug:
+                    msg: "{{fs_cur_size_bytes}}"
+
+                - name: Find Filesystem MAX Allowed size in Bytes
+                  set_fact:
+                    fs_max_allowed_size_bytes: "{{lv_maxlps|int * pp_size_bytes|int}}"
+ 
+                - name: Debug fs_max_allowed_size_bytes
+                  debug:
+                    msg: "{{fs_max_allowed_size_bytes}}"
+
+                - name: Find Filesystem resultant size if it is increased
+                  set_fact:
+                    fs_result_size_if_incr_bytes: "{{fs_cur_size_bytes|int + increase_size_bytes|int}}"
+
+                - name: Debug fs_result_size_if_incr_bytes
+                  debug:
+                    msg: "{{fs_result_size_if_incr_bytes}}"
+
+                - name: Decide on  MAX LPs / MAX FS size condition
+                  set_fact:
+                    maxlps_exceed: "f"
+                  when: fs_result_size_if_incr_bytes|int < fs_max_allowed_size_bytes|int
+
+                - name: Adjust Mirror Factor
+                  set_fact:
+                    mirror_adjust_increase_size_bytes: "{{increase_size_bytes|int * lv_copies|int}}"
+
+                - name: Find available space in bytes when free PPs unit is megabytes
+                  set_fact:
+                          space_avlb_bytes: "{{ free_space|int * 1024 * 1024  }}"
+                  when: free_space_unit == "megabytes"
+
+                - name: Find available space in bytes when free PPs unit is gigabytes
+                  set_fact:
+                          space_avlb_bytes: "{{ free_space|int * 1024 * 1024 * 1024  }}"
+                  when: free_space_unit == "gigabytes"
+
+
+                - name: print available space in bytes
+                  debug:
+                        msg: "{{ space_avlb_bytes  }}"
+
+                - name: Deside on size increase when size increament suffix is empty
+                  set_fact:
+                           increase_size: "t"
+                  when: suffix_empty == "t" and space_avlb_bytes|int >= mirror_adjust_increase_size_bytes|int and free_pps|int >= 1 and maxlps_exceed == "f"
+
+                - name: Decide on size increase when size increament suffix is in gigabytes
+                  set_fact:
+                           increase_size: "t"
+                  when: suffix == "G" and space_avlb_bytes|int >= mirror_adjust_increase_size_bytes|int and free_pps|int >= 1 and maxlps_exceed == "f"
+
+                - name: Decide on size increase when size increament suffix is in megabytes
+                  set_fact:
+                           increase_size: "t"
+                  when: suffix == "M" and space_avlb_bytes|int >= mirror_adjust_increase_size_bytes|int and free_pps|int >= 1 and maxlps_exceed == "f"
+
+                - name: print Decision on size increase
+                  debug:
+                          msg: "increase_size? {{ increase_size  }} increment in bytes {{ increase_size_bytes  }} suffix= {{ suffix  }}  empty= {{ suffix_empty }} maxlps_exceed= {{maxlps_exceed}} mirror_adjusted_size= {{mirror_adjust_increase_size_bytes}}"
+                
+                - name: end play if no go
+                  block:
+                    - name: print debug message
+                      debug:
+                        msg: "Decision to increase the size is a NO GO. Play Ends"
+                        #- name: end play - Never use - produce unexpected results from Ansible controller regarding execution order.
+                        #meta: end_play
+                  when: increase_size == "f"

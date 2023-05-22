@@ -1,0 +1,39 @@
+  - block:
+    - name: generate FS creation command when lvcr_success is true
+      set_fact:
+        command: "crfs -v jfs2 -a log=INLINE -p rw -A yes -d {{fscr_lv_name}} -m {{filesystem_mount_point}}"
+    
+    - name: execute FS creation command
+      shell: "{{command}}"
+      register: buffer
+
+    - name: debug buffer
+      debug:
+        msg: "{{buffer}}"
+
+    - name: set FS creation success as true
+      set_fact:
+        fscr_success: "t"
+      when: buffer.failed == false
+
+    - name: mount the FS when successfully created
+      shell: "mount {{filesystem_mount_point}}"
+      register: buffer
+
+    - name: debug buffer
+      debug:
+        msg: "{{buffer}}"
+
+    - name: set fscr_mount_success
+      set_fact:
+        fscr_mount_success: "t"
+      when: buffer.failed == false
+
+    - name: print FS mount status
+      debug:
+        msg: "Filesystem Mount Failed ?? : {{buffer.failed}}"
+
+    rescue:
+      - name: print rescue message
+        debug:
+          msg: "Some thing went wrong. Please check the message marked fatal. The play Ends"

@@ -1,0 +1,71 @@
+ansible_user: root
+size_increment: ''
+filesystem_mount_point: ''
+fs_result: ''
+fs_valid: "f"
+fs_volume: ''
+fs_vg: ''
+lv_copies: ''
+lv_maxlps: ''
+lv_lps: ''
+lslv_exception: "f"
+vg_valid: "f"
+lsvg_result: ''
+inc_str: ''
+inc_valid: "f"
+inc_suffix: ''
+inc_prefix: 0
+suffix: "f"
+suffix_empty: "f"
+space_avlb_bytes: 0
+increase_size: "f"
+increase_size_bytes: 0
+free_pps: 0
+free_space: 0
+free_space_unit: ''
+pp_size_int: ''
+pp_size_unit: ''
+pp_size_bytes: ''
+fs_cur_size_bytes: ''
+fs_max_allowed_size_bytes: ''
+fs_result_size_if_incr_bytes: ''
+maxlps_exceed: "t"
+mirror_adjust_increase_size_bytes: ''
+command: ''
+chfs_result: ''
+host_fqdn_captured: "f"
+host_found: "f"
+cls_utilities_presence: "f"
+cls_res_node_dict_list: ''
+cls_online_res_node_fetch_stderr: ''
+cls_offline_node_list: ''
+cls_offline_node_fetch_stderr: ''
+cls_membership: "f"
+cllsfs_rg: ''
+cls_fs_active_node: ''
+use_cspoc: "f"
+use_os: "f"
+not_active_node_for_fs: "f"
+#------------------------Program Flow Control------------
+QualifyFor_ValidateFS_DetectVG: "f"
+QualifyFor_GatherClusterData: "f"
+QualifyFor_DecisionPath: "f"
+QualifyFor_WorkOnIncrementValue: "f"
+QualifyFor_FindAvlbSpace: "f"
+QualifyFor_DecideGoNoGo: "f"
+QualifyFor_ExecFSIncrease: "f"
+
+#--------------------------------------------------------
+map:
+  - host: pzaeng5_not_in_inventory.pldc.kp.org
+    mount_point: /tmp
+    size_incr: 1024
+  - host: pzaeng63.pldc.kp.org
+    mount_point: /tmp
+    size_incr: 128m
+  - host: pzaeng39.pldc.kp.org
+    mount_point: /bfs
+    size_incr: 128m
+  - host: pzaeng38.pldc.kp.org
+    mount_point: /bfs
+    size_incr: 128m
